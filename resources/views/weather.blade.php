@@ -34,6 +34,15 @@
     <div class="container text-center">
         <h1 class="mb-4">Weather Search</h1>
         <p class="lead">Enter the name of a city or country to get the current weather information.</p>
+        @if ($errors->any())
+            <div class="alert alert-danger">
+                <ul>
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
         <form action="{{ route('weather') }}" method="GET">
             @csrf
             <div class="mb-3">
