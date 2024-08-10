@@ -8,7 +8,7 @@ class WeatherService
 {
     protected $apiKey;
     protected $geoUrl = 'http://api.openweathermap.org/geo/1.0/direct';
-    protected $weatherUrl = 'https://api.openweathermap.org/data/3.0/onecall';
+    protected $weatherUrl = 'https://api.openweathermap.org/data/2.5/weather';
 
     public function __construct()
     {
