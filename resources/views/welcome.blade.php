@@ -55,14 +55,16 @@
         @endif
         <form action="{{ route('weather') }}" method="GET">
             @csrf
-            <div class="mb-3">
-                <input type="text" class="form-control" name="city" placeholder="Enter city name..." required>
-            </div>
             <div class="mt-3">
             <h5>Examples:</h5>
             <p class="mb-0">London, UK</p>
             <p>Paris, FR</p>
             <p>New York, US</p>
+
+            <div class="mb-3">
+                <input type="text" class="form-control" name="city" placeholder="Enter city name..." required>
+            </div>
+
         </div>
             <button type="submit" class="btn btn-primary">Search</button>
         </form>

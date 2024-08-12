@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Services\WeatherService;
-use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use App\Services\WeatherService; // Importez votre service ici
 
 class WeatherController extends Controller
 {
@@ -24,17 +24,13 @@ class WeatherController extends Controller
         $city = $request->input('city');
 
         try {
-            $weather = $this->weatherService->getWeatherByCity($city);
+            $weather= $this->weatherService->getWeatherData($city);
 
-            if ($weather) {
-                return view('welcome', compact('weather', 'city'));
-            } else {
-                return redirect()->back()->withErrors(['city' => 'Ville non trouvée ou problème avec l\'API.']);
-            }
-        } catch (Exception $e) {
-            // En cas d'erreur, capturer l'exception et renvoyer un message d'erreur
+            return view('welcome', compact('weather', 'city'));
+
+        } catch (\Exception $e) {
+            Log::error('Une exception s\'est produite.', ['exception' => $e->getMessage()]);
             return redirect()->back()->withErrors(['city' => 'Une erreur s\'est produite: ' . $e->getMessage()]);
         }
     }
 }
-

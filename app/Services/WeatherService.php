@@ -3,8 +3,11 @@
 namespace App\Services;
 
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
+use App\Interfaces\WeatherServiceInterface;
 
-class WeatherService
+class WeatherService implements WeatherServiceInterface
+
 {
     protected $apiKey;
     protected $geoUrl = 'http://api.openweathermap.org/geo/1.0/direct';
@@ -15,27 +18,30 @@ class WeatherService
         $this->apiKey = env('WEATHER_API_KEY');
     }
 
-    public function getCoordinatesByCity(string $city)
+    public function getWeatherData(string $city):array
     {
+        // Get coordinates
         $response = Http::get($this->geoUrl, [
             'q' => $city,
             'limit' => 1,
             'appid' => $this->apiKey
         ]);
 
-        if ($response->successful() && !empty($response->json())) {
-            $data = $response->json()[0];
-            return [
-                'lat' => $data['lat'],
-                'lon' => $data['lon']
-            ];
+        if (!$response->successful()) {
+            Log::error('Erreur lors de la récupération des coordonnées.', ['response' => $response->body()]);
+            throw new \Exception('Erreur lors de la récupération des coordonnées.');
         }
 
-        return null;
-    }
+        $coordinates = $response->json();
+        if (empty($coordinates)) {
+            throw new \Exception('Ville non trouvée.');
+        }
 
-    public function getWeatherByCoordinates(float $lat, float $lon)
-    {
+        $data = $coordinates[0];
+        $lat = $data['lat'];
+        $lon = $data['lon'];
+
+        // Get weather data
         $response = Http::get($this->weatherUrl, [
             'lat' => $lat,
             'lon' => $lon,
@@ -44,21 +50,11 @@ class WeatherService
             'lang' => 'fr'
         ]);
 
-        if ($response->successful()) {
-            return $response->json();
+        if (!$response->successful()) {
+            Log::error('Erreur lors de la récupération des données météo.', ['response' => $response->body()]);
+            throw new \Exception('Erreur lors de la récupération des données météo.');
         }
 
-        return null;
-    }
-
-    public function getWeatherByCity(string $city)
-    {
-        $coordinates = $this->getCoordinatesByCity($city);
-
-        if ($coordinates) {
-            return $this->getWeatherByCoordinates($coordinates['lat'], $coordinates['lon']);
-        }
-
-        return null;
+        return $response->json();
     }
 }
